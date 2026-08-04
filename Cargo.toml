@@ -4,14 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.104"
-tray-icon = "0.24.2"
 objc2 = "0.6"
+anyhow = "1.0.104"
+trayicon = "0.4.1"
 tokio = { version = "1", features = ["full"] }
 objc2-app-kit = { version = "0.3", features = [
     "NSStatusBar",
     "NSStatusItem",
     "NSMenu",
+    "NSAppearance",
     "NSMenuItem",
     "NSImage",
     "NSResponder",
@@ -23,18 +24,11 @@ objc2-foundation = { version = "0.3", features = [
     "NSString",
     "NSThread",
 ] }
-trayicon = "0.4.1"
-
+dirs = "5"
 canopee-node = {
     git = "ssh://git@github.com/pierreportal/canopee.git",
     package = "canopee-node"
 }
-
-canopee-identity = {
-    git = "ssh://git@github.com/pierreportal/canopee.git",
-    package = "canopee-identity"
-}
-
 canopee-protocol = {
     git = "ssh://git@github.com/pierreportal/canopee.git",
     package = "canopee-protocol"
