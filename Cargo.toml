@@ -7,6 +7,8 @@ edition = "2024"
 objc2 = "0.6"
 anyhow = "1.0.104"
 trayicon = "0.4.1"
+bincode = "1"
+serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 objc2-app-kit = { version = "0.3", features = [
     "NSStatusBar",
@@ -18,18 +20,25 @@ objc2-app-kit = { version = "0.3", features = [
     "NSResponder",
     "NSApplication",
     "NSRunningApplication",
+    "NSColor",
+    "NSBezierPath",
+    "NSBitmapImageRep",
 ] }
 objc2-foundation = { version = "0.3", features = [
     "NSData",
     "NSString",
     "NSThread",
+    "NSDate",
+    "NSTimer",
+    "NSArray",
+    "NSURL",
+    "NSUserNotification",
+    "NSDictionary",
+    "objc2-core-foundation",
 ] }
 dirs = "5"
-canopee-node = {
-    git = "ssh://git@github.com/pierreportal/canopee.git",
-    package = "canopee-node"
-}
-canopee-protocol = {
-    git = "ssh://git@github.com/pierreportal/canopee.git",
-    package = "canopee-protocol"
-}
+canopee-node = { path = "../canopee/crates/canopee-node" }
+canopee-protocol = { path = "../canopee/crates/canopee-protocol" }
+canopee-storage = { path = "../canopee/crates/canopee-storage" }
+canopee-config = { path = "../canopee/crates/canopee-config" }
+canopee-identity = { path = "../canopee/crates/canopee-identity" }
