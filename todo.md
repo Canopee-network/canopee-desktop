@@ -30,17 +30,49 @@
 - Graceful quit (C4): Quit stops the node (socket Shutdown + await task) and
   sets a flag the main-thread timer acts on via `app.terminate`, so the
   `process::exit(0)` shutdown race is gone.
+- Data window (`src/data_window.rs`, "Open My Data…" in the menu): a 3-tab
+  NSWindow (Storage / Contacts / Devices) with per-tab search, empty states,
+  and node-backed actions over a `DataAction`/`DataFeedback` channel pair.
+  Covers add files, import/export bundle, rename, share/unshare, delete, copy
+  id, contact CRUD + profile resolve, device sync/remove.
+  - Identity header: display name, username and identity are visible and
+    editable in-app ("Edit Profile…", "Username…"), so setting a name or
+    claiming a username no longer requires the CLI.
+  - "Save a Copy…" writes an object's original bytes to a chosen path and
+    "Open" (or double-clicking a row) hands them to the default application —
+    previously the only way to get data back out was the CLI, and "Export…"
+    writes an opaque bincode bundle.
+  - Data actions run on their own tokio task, so a slow import or multi-file
+    add no longer stalls the tray's 2s refresh loop.
+  - Rename now moves the object's home entry (and republishes the
+    `entry:<name>` pointer when shared); `SetName` alone only writes the local
+    sidecar, so renaming a shared object used to appear to do nothing.
+  - `--data` opens the window at launch, for QA without clicking the tray icon.
+
+## Known issues
+- `badge::tests::badge_png_encodes_24x24_png` fails (pre-existing, unrelated to
+  the data window): the composited status dot covers fewer pixels than the test
+  expects. Needs a look at `src/badge.rs` compositing.
+- The window's action buttons are a flat left-aligned row. A popup "Actions ▾"
+  plus a primary button, and right-click context menus on rows, would be closer
+  to AppKit convention than nine buttons in a line.
+- Contact add/edit takes a raw `dh_public_key` as pasted hex; there is no key
+  exchange flow in the window yet, so sharing contact keys still needs the CLI
+  or a `canopee://` link.
 
 ## Next
 
 A. Deferred features that need macOS UI (dialogs / text input)
-1. Export / Import storage — menu items that open NSOpenPanel/NSSavePanel, pick a directory, then call canopee-storage's export/import (needs the node or storage to expose these commands; may require a new NodeCommand in canopee-protocol).
+1. ~~Export / Import storage~~ — DONE in the data window.
 2. Dial a peer / listen via relay — text-input dialog (peer ID / relay ID) wired to the runtime's network manager to open a connection.
 3. PubSub — subscribe/unsubscribe topic + publish (input dialog).
-4. Profile / contacts — add, view, and message contacts; likely just display + open-ID for now.
+4. ~~Profile / contacts~~ — PARTIAL: profile + contact list are manageable;
+   adding a contact by scanning a `canopee://` link (instead of pasting a hex
+   key) is still open.
 5. Preferences / Launch at login — a small settings sheet (SMAppService / SMAppService.mainApp, menu submenu with checkboxes).
-6. First-run onboarding — a proper window (not just the menu) on first launch: show peer ID, copy/backup identity key.
+6. First-run onboarding — a proper window (not just the menu) on first launch: show peer ID, copy/backup identity key. The data window's identity header covers most of this.
 7. Notifications — NSUserNotification/UNUserNotificationCenter on node events (peer connect, new object, error).
+
 
 B. Feature gaps / polish already scoped
 1. App launch via canopee:// — DONE (tray is the scheme handler; remote issuance falls back to DHT `ResolveAppPointer`, which times out offline).
@@ -61,4 +93,8 @@ C. Verification / hardening
 5. Real app icon artwork — the bundle icon is upscaled from the 24px menu glyph (APP_ICON_SRC override in build_app.sh).
 6. Notarization + stapling for external distribution — documented in scripts/build_app.sh.
 
-Priority order I'd suggest next: A1–A3 (storage/listen/PubSub dialogs) since overlay menus are already needed for URL text input; then A4–A6 (prefs/onboarding); then migrate notifications to UNUserNotificationCenter if banners are insufficient.
+Priority order I'd suggest next: a popup/context-menu pass on the data window's
+button rows (it has grown to nine buttons on the Storage tab), then A2–A3
+(dial/listen/PubSub dialogs) since overlay menus are already needed for URL text
+input; then A5–A6 (prefs/onboarding); then migrate notifications to
+`UNUserNotificationCenter` if banners are insufficient.

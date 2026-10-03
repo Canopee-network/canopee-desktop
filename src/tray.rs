@@ -3,6 +3,7 @@ use trayicon::*;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Events {
     Noop,
+    OpenDataWindow,
     CopyIdentity,
     OpenApp { name: String },
     OpenUrl { url: String },
@@ -83,6 +84,7 @@ pub fn build_menu(s: &MenuSnapshot) -> MenuBuilder<Events> {
         .with(disabled_item(&format!("Identity: {}", truncated_identity(s))));
 
     menu = menu
+        .item("Open My Data…", Events::OpenDataWindow)
         .item("Copy identity", Events::CopyIdentity)
         .with(disabled_item(&format!("Objects: {}", s.objects)))
         .separator();
@@ -202,6 +204,7 @@ mod tests {
         let mut menu = MenuBuilder::new()
             .with(disabled_item(&state_line(s)))
             .with(disabled_item(&format!("Identity: {}", truncated_identity(s))))
+            .item("Open My Data…", Events::OpenDataWindow)
             .item("Copy identity", Events::CopyIdentity)
             .with(disabled_item(&format!("Objects: {}", s.objects)))
             .separator();
